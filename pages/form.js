@@ -5,6 +5,7 @@ import { DatePickerInput } from "../components/inputs/DatePicker";
 import { DropdownInput } from "../components/inputs/DropdownInput";
 import { RadioButtonInput } from "../components/inputs/RadioButtonInput";
 import { TextInputField } from "../components/inputs/TextInput";
+import UploadFileInput from "../components/inputs/UploadFileInput";
 
 const MainForm = () => {
   const todayDate = new Date();
@@ -23,12 +24,13 @@ const MainForm = () => {
     application_date: formattedDate,
     health_issues: "yes",
     syntoms_start: formattedDate,
+    application_file: "",
   };
 
   const methods = useForm({ defaultValues: defaultValues });
   const { handleSubmit, reset, control, setValue, watch } = methods;
-  const hasHealthIssues = watch("health_issues");
-  console.log(watch("health_issues"));
+  const hasHealthIssues = watch("application_file");
+  console.log(watch("application_file"));
   const onSubmit = (data) => console.log(data);
 
   return (
@@ -40,7 +42,7 @@ const MainForm = () => {
         margin: "10px 300px",
       }}
     >
-      <Typography variant="h3">Formulario principal</Typography>
+      <Typography variant="h3">Registro de historia clinica</Typography>
       <Typography variant="h6">Datos principales</Typography>
       <TextInputField
         name="full_name"
@@ -62,15 +64,29 @@ const MainForm = () => {
         control={control}
         label="¿Ha sufrido problemas de salud por esto?*"
       />
-      {hasHealthIssues == "yes" && (
-        <DatePickerInput
-          name="syntoms_start"
-          control={control}
-          label="Fecha desde que empezó a presentar problemas (Si aplica)"
-        />
-      )}
-      <Button onClick={handleSubmit(onSubmit)}>Enviar</Button>
-      <Button onClick={reset(defaultValues)}>Limpiar</Button>
+      <DatePickerInput
+        name="syntoms_start"
+        control={control}
+        label="Fecha desde que empezó a presentar problemas (Si aplica)"
+      />
+      <Typography variant="h6">
+        Subir reporte aplicación de biopolimero
+      </Typography>
+      <UploadFileInput
+        name="application_file"
+        control={control}
+        label=" Reporte (PDF)"
+      />
+      <Button variant="contained" onClick={handleSubmit(onSubmit)}>
+        Enviar
+      </Button>
+      <Button variant="outlined" color="error" onClick={reset(defaultValues)}>
+        Limpiar
+      </Button>
+      <Typography variant="p">
+        Al dar click en &apos;Enviar&apos; está aceptando nuestros términos y
+        condiciones
+      </Typography>
     </Paper>
   );
 };

@@ -30,7 +30,7 @@ export const DropdownInput = ({ name, control, label }) => {
         control={control}
         name={name}
         render={({ field: { onChange, value } }) => (
-          <Select onChange={onChange} value={value} required>
+          <Select onChange={onChange} value={value} label={label} required>
             {generateSelectOptions()}
           </Select>
         )}
