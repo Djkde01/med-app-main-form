@@ -1,37 +1,81 @@
-import { Button, Paper, Typography } from "@mui/material";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { DatePickerInput } from "../components/inputs/DatePicker";
-import { DropdownInput } from "../components/inputs/DropdownInput";
-import { RadioButtonInput } from "../components/inputs/RadioButtonInput";
-import { TextInputField } from "../components/inputs/TextInput";
-import UploadFileInput from "../components/inputs/UploadFileInput";
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Input,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Radio,
+  RadioGroup,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import NotificationModal from "../components/shareds/NotificationModal";
 
 const MainForm = () => {
   const todayDate = new Date();
-  const todayDay = todayDate.getDay();
-  const todayMonth = todayDate.getMonth();
-  const todayYear = todayDate.getFullYear();
-
-  const formattedDate =
-    todayMonth < 10
-      ? `${todayYear}-0${todayMonth}-${todayDay}`
-      : `${todayYear}-${todayMonth}-${todayDay}`;
 
   const defaultValues = {
     full_name: undefined,
-    biopolimer: "",
-    application_date: formattedDate,
+    biopolimer: "Hialucorp",
+    application_date: todayDate,
     health_issues: "yes",
-    syntoms_start: formattedDate,
+    syntoms_start: todayDate,
     application_file: "",
   };
+  const validationSchema = Yup.object().shape({
+    full_name: Yup.string().required("Nombre completo es requerido"),
+    biopolimer: Yup.mixed()
+      .oneOf(["Hialucorp", "Metacorp"])
+      .required("Elija el bioplíomero aplicado"),
+    application_date: Yup.date()
+      .max(todayDate, "Fecha inválida")
+      .required("Fecha de aplicación requerida"),
+    health_issues: Yup.mixed().oneOf(["yes", "no"]).required("Campo requerido"),
+    syntoms_start: Yup.date().max(todayDate, "Fecha inválida"),
+    application_file: Yup.mixed()
+      .required("Historia clínica requerida")
+      .test("fileSize", "El tamaño del archivo es muy grande", (value) => {
+        console.log(value[0]);
+        return value && value[0].size <= 3000000;
+      })
+      .test("type", "Solo se pueden subir archivos .pdf", (value) => {
+        return value && value[0].type === "application/pdf";
+      }),
+  });
+  const [snackbarStatus, setSnackbarStatus] = useState(false);
 
-  const methods = useForm({ defaultValues: defaultValues });
-  const { handleSubmit, reset, control, setValue, watch } = methods;
-  const hasHealthIssues = watch("application_file");
-  console.log(watch("application_file"));
-  const onSubmit = (data) => console.log(data);
+  const [selectedFile, setSelectedFile] = useState("No seleccionado");
+
+  const handleSelectedFile = (event) => {
+    console.log(event);
+    setSelectedFile(event.target.files[0].name);
+  };
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: defaultValues,
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+    setSnackbarStatus(true);
+  };
 
   return (
     <Paper
@@ -42,51 +86,194 @@ const MainForm = () => {
         margin: "10px 300px",
       }}
     >
-      <Typography variant="h3">Registro de historia clinica</Typography>
-      <Typography variant="h6">Datos principales</Typography>
-      <TextInputField
-        name="full_name"
-        control={control}
-        label="Nombre completo*"
-      />
-      <DropdownInput
-        name="biopolimer"
-        control={control}
-        label="Nombre del biopolimero que le fue aplicado*"
-      />
-      <DatePickerInput
-        name="application_date"
-        control={control}
-        label="Fecha exacta (O aproximada) en la que se le fue aplicado*"
-      />
-      <RadioButtonInput
-        name="health_issues"
-        control={control}
-        label="¿Ha sufrido problemas de salud por esto?*"
-      />
-      <DatePickerInput
-        name="syntoms_start"
-        control={control}
-        label="Fecha desde que empezó a presentar problemas (Si aplica)"
-      />
-      <Typography variant="h6">
-        Subir reporte aplicación de biopolimero
-      </Typography>
-      <UploadFileInput
-        name="application_file"
-        control={control}
-        label=" Reporte (PDF)"
-      />
+      <Box px={3} py={2}>
+        <Typography variant="h3">Registro de historia clinica</Typography>
+        <Typography variant="h6">Datos principales</Typography>
+        <TextField
+          required
+          id="full_name"
+          name="full_name"
+          label="Nombre completo"
+          fullWidth
+          margin="dense"
+          variant="outlined"
+          {...register("full_name")}
+          error={errors.full_name ? true : false}
+        />
+        <Typography
+          variant="inherit"
+          color="textSecondary"
+          style={{
+            margin: "10px auto",
+            color: "red",
+          }}
+        >
+          {errors.full_name?.message}
+        </Typography>
+        <FormControl fullWidth>
+          <InputLabel id="biopolimer">
+            Nombre del biopolimero que le fue aplicado
+          </InputLabel>
+          <Select
+            required
+            id="biopolimer"
+            name="biopolimer"
+            label="Biopolimero"
+            defaultValue="Hialucorp"
+            {...register("biopolimer")}
+            error={errors.biopolimer ? true : false}
+          >
+            <MenuItem value="Hialucorp">Hialucorp</MenuItem>
+            <MenuItem value="Metacorp">Metacorp</MenuItem>
+          </Select>
+        </FormControl>
+        <Typography
+          variant="inherit"
+          color="textSecondary"
+          style={{
+            margin: "10px auto",
+            color: "red",
+          }}
+        >
+          {errors.biopolimer?.message}
+        </Typography>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Typography variant="h6">Fecha de aplicación</Typography>
+          <Controller
+            name="application_date"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <DatePicker
+                onChange={onChange}
+                value={value}
+                label="Ingrese fecha"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    {...register("application_date")}
+                    error={errors.application_date ? true : false}
+                  />
+                )}
+              />
+            )}
+          />
+          <Typography
+            variant="inherit"
+            color="textSecondary"
+            style={{
+              margin: "10px auto",
+              color: "red",
+            }}
+          >
+            {errors.application_date?.message}
+          </Typography>
+        </LocalizationProvider>
+        <FormControl>
+          <FormLabel id="health_issues">
+            ¿Ha sufrido problemas de salud por esto?
+          </FormLabel>
+          <Controller
+            name="health_issues"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <RadioGroup
+                value={value}
+                onChange={onChange}
+                label="¿Ha sufrido problemas de salud por esto?"
+              >
+                <FormControlLabel
+                  value="yes"
+                  label="Sí"
+                  {...register("health_issues")}
+                  control={<Radio />}
+                />
+                <FormControlLabel
+                  value="no"
+                  label="No"
+                  {...register("health_issues")}
+                  control={<Radio />}
+                />
+              </RadioGroup>
+            )}
+          />
+        </FormControl>
+        <Typography
+          variant="inherit"
+          color="textSecondary"
+          style={{
+            margin: "10px auto",
+            color: "red",
+          }}
+        >
+          {errors.health_issues?.message}
+        </Typography>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Typography variant="h6">Fecha de inicio de síntomas</Typography>
+          <Controller
+            name="syntoms_start"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <DatePicker
+                onChange={onChange}
+                value={value}
+                label="Ingrese fecha"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    {...register("syntoms_start")}
+                    error={errors.syntoms_start ? true : false}
+                  />
+                )}
+              />
+            )}
+          />
+          <Typography
+            variant="inherit"
+            color="textSecondary"
+            style={{
+              margin: "10px auto",
+              color: "red",
+            }}
+          >
+            {errors.syntoms_start?.message}
+          </Typography>
+        </LocalizationProvider>
+        <Typography variant="h6">Historia clinica</Typography>
+        <Button variant="contained" component="label">
+          Subir archivo (.PDF 3MB) - {selectedFile}
+          <input
+            type="file"
+            hidden
+            name="application_file"
+            accept="application/pdf"
+            onInput={(e) => handleSelectedFile(e)}
+            {...register("application_file")}
+          />
+        </Button>
+        <Typography
+          variant="inherit"
+          color="textSecondary"
+          style={{
+            margin: "10px auto",
+            color: "red",
+          }}
+        >
+          {errors.application_file?.message}
+        </Typography>
+      </Box>
       <Button variant="contained" onClick={handleSubmit(onSubmit)}>
         Enviar
-      </Button>
-      <Button variant="outlined" color="error" onClick={reset(defaultValues)}>
-        Limpiar
       </Button>
       <Typography variant="p">
         Al dar click en &apos;Enviar&apos; está aceptando nuestros términos y
         condiciones
       </Typography>
+      <NotificationModal
+        isOpen={snackbarStatus}
+        onClose={() => {
+          setSnackbarStatus(false);
+        }}
+      />
     </Paper>
   );
 };
