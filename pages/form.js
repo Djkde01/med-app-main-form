@@ -5,7 +5,6 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
-  Input,
   InputLabel,
   MenuItem,
   Paper,
@@ -21,6 +20,11 @@ import * as Yup from "yup";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import NotificationModal from "../components/shareds/NotificationModal";
+
+/*
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../firebase";
+*/
 
 const MainForm = () => {
   const todayDate = new Date();
@@ -46,7 +50,6 @@ const MainForm = () => {
     application_file: Yup.mixed()
       .required("Historia clínica requerida")
       .test("fileSize", "El tamaño del archivo es muy grande", (value) => {
-        console.log(value[0]);
         return value && value[0].size <= 3000000;
       })
       .test("type", "Solo se pueden subir archivos .pdf", (value) => {
@@ -75,6 +78,14 @@ const MainForm = () => {
   const onSubmit = (data) => {
     console.log(data);
     setSnackbarStatus(true);
+    /*
+    db.collection("entries")
+      .add(data)
+      .then(setSnackbarStatus(true))
+      .catch((e) => {
+        console.error("Error adding document: ", e);
+      });
+      */
   };
 
   return (
