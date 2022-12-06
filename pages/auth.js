@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 import "firebase/auth";
-import {
-  AuthAction,
-  withAuthUser,
-  withAuthUserTokenSSR,
-} from "next-firebase-auth";
+import { AuthAction, withAuthUser } from "next-firebase-auth";
 import { Typography } from "@mui/material";
 
 // Note that next-firebase-auth inits Firebase for us,
@@ -63,11 +59,6 @@ const FirebaseAuth = () => {
     </div>
   );
 };
-export const getServerSideProps = withAuthUserTokenSSR({
-  whenAuthed: AuthAction.REDIRECT_TO_APP,
-})(() => {
-  return { props: {} };
-});
 export default withAuthUser({
   whenAuthed: AuthAction.REDIRECT_TO_APP,
 })(FirebaseAuth);
