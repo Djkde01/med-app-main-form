@@ -27,7 +27,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import firebase from "firebase/app";
+import firebase from "firebase";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -35,11 +35,6 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import NotificationModal from "../components/shareds/NotificationModal";
 import { Container } from "@mui/system";
-
-/*
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase";
-*/
 
 const settings = ["Registro historia clínica", "Términos & Condiciones"];
 
@@ -109,15 +104,18 @@ const MainForm = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-    setSnackbarStatus(true);
-    /*
-    db.collection("entries")
-      .add(data)
-      .then(setSnackbarStatus(true))
-      .catch((e) => {
-        console.error("Error adding document: ", e);
+    firebase
+      .firestore()
+      .collection("entries")
+      .add({
+        data,
+      })
+      .then(() => {
+        setSnackbarStatus(true);
+      })
+      .catch((error) => {
+        alert(error.message);
       });
-      */
   };
 
   console.log("Rendered form");
