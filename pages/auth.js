@@ -3,6 +3,7 @@ import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 import "firebase/auth";
 import { AuthAction, withAuthUser } from "next-firebase-auth";
+import { Typography } from "@mui/material";
 
 // Note that next-firebase-auth inits Firebase for us,
 // so we don't need to.
@@ -13,8 +14,7 @@ const firebaseAuthConfig = {
   // https://github.com/firebase/firebaseui-web#configure-oauth-providers
   signInOptions: [
     {
-      provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      requireDisplayName: false,
+      provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
     },
   ],
   signInSuccessUrl: "/",
@@ -39,6 +39,16 @@ const FirebaseAuth = () => {
   }, []);
   return (
     <div>
+      <Typography
+        variant="h3"
+        color="textSecondary"
+        style={{
+          margin: "10px auto",
+          textAlign: "center",
+        }}
+      >
+        Entrar
+      </Typography>
       {renderAuth ? (
         <StyledFirebaseAuth
           uiConfig={firebaseAuthConfig}
