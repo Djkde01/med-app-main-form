@@ -18,7 +18,9 @@ const initAuth = () => {
         clientEmail:
           "firebase-adminsdk-6fwxs@biopolimeros-b9044.iam.gserviceaccount.com",
         // The private key must not be accessible on the client side.
-        privateKey: process.env.FIREBASE_PRIVATE_KEY,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY
+          ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/gm, "\n")
+          : undefined,
       },
     },
     // Use application default credentials (takes precedence over firebaseAdminInitConfig if set)
