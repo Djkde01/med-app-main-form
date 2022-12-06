@@ -37,6 +37,7 @@ const FirebaseAuth = () => {
       setRenderAuth(true);
     }
   }, []);
+  console.log("Rendered auth");
   return (
     <div>
       <Typography

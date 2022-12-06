@@ -120,6 +120,7 @@ const MainForm = () => {
       */
   };
 
+  console.log("Rendered form");
   return (
     <>
       <AppBar position="static">
