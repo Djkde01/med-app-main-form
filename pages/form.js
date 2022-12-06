@@ -72,7 +72,6 @@ const MainForm = () => {
       .required("Fecha de aplicación requerida"),
     health_issues: Yup.mixed().oneOf(["yes", "no"]).required("Campo requerido"),
     syntoms_start: Yup.date().max(todayDate, "Fecha inválida"),
-    /* 
     application_file: Yup.mixed()
       .required("Historia clínica requerida")
       .test("fileSize", "El tamaño del archivo es muy grande", (value) => {
@@ -81,15 +80,14 @@ const MainForm = () => {
       .test("type", "Solo se pueden subir archivos .pdf", (value) => {
         return value && value[0].type === "application/pdf";
       }),
-      */
   });
   const [snackbarStatus, setSnackbarStatus] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState("No seleccionado");
+  const [fileUrl, setFileUrl] = useState(null);
 
   const handleSelectedFile = (event) => {
-    console.log(event);
-    setSelectedFile(event.target.files[0].name);
+    setSelectedFile(event.target.files[0]);
   };
 
   const {
@@ -102,23 +100,40 @@ const MainForm = () => {
     defaultValues: defaultValues,
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    firebase
-      .firestore()
-      .collection("entries")
-      .add({
-        data,
+  const onSubmit = async (data) => {
+    const storageRef = firebase.storage().ref();
+    const fileRef = storageRef.child(selectedFile.name);
+    fileRef
+      .put(selectedFile)
+      .then(() => {
+        fileRef
+          .getDownloadURL()
+          .then((value) => setFileUrl(value))
+          .catch((error) => {
+            alert(error.message);
+          });
       })
       .then(() => {
-        setSnackbarStatus(true);
+        console.log(fileUrl);
+        firebase
+          .firestore()
+          .collection("entries")
+          .doc(AuthUser.email)
+          .set({
+            ...data,
+            application_file: fileUrl,
+          })
+          .then(() => {
+            setSnackbarStatus(true);
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
       })
       .catch((error) => {
         alert(error.message);
       });
   };
-
-  console.log("Rendered form");
   return (
     <>
       <AppBar position="static">
@@ -337,30 +352,28 @@ const MainForm = () => {
               {errors.syntoms_start?.message}
             </Typography>
           </LocalizationProvider>
-          {/*
-        <Typography variant="h6">Historia clinica</Typography>
-        <Button variant="contained" component="label">
-          Subir archivo (.PDF 3MB) - {selectedFile}
-          <input
-            type="file"
-            hidden
-            name="application_file"
-            accept="application/pdf"
-            onInput={(e) => handleSelectedFile(e)}
-            {...register("application_file")}
-          />
-        </Button>
-        <Typography
-          variant="inherit"
-          color="textSecondary"
-          style={{
-            margin: "10px auto",
-            color: "red",
-          }}
-        >
-          {errors.application_file?.message}
-        </Typography>
-          */}
+          <Typography variant="h6">Historia clinica</Typography>
+          <Button variant="contained" component="label">
+            Subir archivo (.PDF 3MB) - {selectedFile.name}
+            <input
+              type="file"
+              hidden
+              name="application_file"
+              accept="application/pdf"
+              onInput={(e) => handleSelectedFile(e)}
+              {...register("application_file")}
+            />
+          </Button>
+          <Typography
+            variant="inherit"
+            color="textSecondary"
+            style={{
+              margin: "10px auto",
+              color: "red",
+            }}
+          >
+            {errors.application_file?.message}
+          </Typography>
         </Box>
         <Button variant="contained" onClick={handleSubmit(onSubmit)}>
           Enviar
