@@ -106,22 +106,13 @@ const MainForm = () => {
     fileRef
       .put(selectedFile)
       .then(() => {
-        fileRef
-          .getDownloadURL()
-          .then((value) => setFileUrl(value))
-          .catch((error) => {
-            alert(error.message);
-          });
-      })
-      .then(() => {
-        console.log(fileUrl);
         firebase
           .firestore()
           .collection("entries")
           .doc(AuthUser.email)
           .set({
             ...data,
-            application_file: fileUrl,
+            application_file: fileRef.toString(),
           })
           .then(() => {
             setSnackbarStatus(true);
