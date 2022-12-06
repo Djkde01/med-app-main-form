@@ -1,12 +1,24 @@
+import { Button, Paper, Typography } from "@mui/material";
+import Link from "next/link";
 import React from "react";
-import Header from "../components/layout/Header";
-import MainForm from "./form";
 
 const index = () => {
   return (
     <div>
-      <Header />
-      <MainForm />
+      <Paper>
+        <Typography
+          variant="h1"
+          color="textSecondary"
+          style={{
+            margin: "10px auto",
+          }}
+        >
+          Formulario biopolímeros
+        </Typography>
+        <Button variant="contained">
+          <Link href="/auth">Entrar</Link>
+        </Button>
+      </Paper>
     </div>
   );
 };
