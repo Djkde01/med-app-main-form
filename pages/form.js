@@ -56,23 +56,28 @@ const MainForm = () => {
 
   const defaultValues = {
     full_name: undefined,
-    biopolimer: "Hialucorp",
-    application_date: todayDate,
-    health_issues: "yes",
-    syntoms_start: todayDate,
-    //application_file: "",
+    biopolimer: undefined,
+    application_date: null,
+    health_issues: null,
+    syntoms_start: null,
+    application_file: null,
   };
   const validationSchema = Yup.object().shape({
     full_name: Yup.string().required("Nombre completo es requerido"),
     biopolimer: Yup.mixed()
-      .oneOf(["Hialucorp", "Metacorp"])
+      .oneOf(["Hialucorp", "Metacorp"], "Elija el bioplíomero aplicado")
       .required("Elija el bioplíomero aplicado"),
     application_date: Yup.date()
-      .max(todayDate, "Fecha inválida")
-      .required("Fecha de aplicación requerida"),
+      .typeError("Fecha de aplicación inválida")
+      .required("Fecha de aplicación requerida")
+      .max(todayDate, "Fecha inválida"),
     health_issues: Yup.mixed().oneOf(["yes", "no"]).required("Campo requerido"),
-    syntoms_start: Yup.date().max(todayDate, "Fecha inválida"),
+    syntoms_start: Yup.date()
+      .max(todayDate, "Fecha inválida")
+      .typeError("Fecha de aplicación inválida"),
+
     application_file: Yup.mixed()
+      .nullable()
       .required("Historia clínica requerida")
       .test("fileSize", "El tamaño del archivo es muy grande", (value) => {
         return value && value[0].size <= 3000000;
@@ -102,7 +107,7 @@ const MainForm = () => {
 
   const onSubmit = async (data) => {
     const storageRef = firebase.storage().ref();
-    const fileRef = storageRef.child(selectedFile.name);
+    const fileRef = storageRef.child(AuthUser.email);
     fileRef
       .put(selectedFile)
       .then(() => {
@@ -185,14 +190,16 @@ const MainForm = () => {
       </AppBar>
       <Paper
         style={{
+          maxWidth: "500px",
+          width: "90%",
           display: "grid",
           gridRowGap: "20px",
           padding: "20px",
-          margin: "10px 300px",
+          margin: "10px auto",
         }}
       >
         <Box px={3} py={2}>
-          <Typography variant="h3">Registro de historia clinica</Typography>
+          <Typography variant="h3">Registro</Typography>
           <Typography variant="h6">Datos principales</Typography>
           <TextField
             required
@@ -224,10 +231,11 @@ const MainForm = () => {
               id="biopolimer"
               name="biopolimer"
               label="Nombre del biopolimero que le fue aplicado"
-              defaultValue="Hialucorp"
+              defaultValue="Seleccione"
               {...register("biopolimer")}
               error={errors.biopolimer ? true : false}
             >
+              <MenuItem value="Seleccione">Seleccione</MenuItem>
               <MenuItem value="Hialucorp">Hialucorp</MenuItem>
               <MenuItem value="Metacorp">Metacorp</MenuItem>
             </Select>
@@ -343,7 +351,7 @@ const MainForm = () => {
               {errors.syntoms_start?.message}
             </Typography>
           </LocalizationProvider>
-          <Typography variant="h6">Historia clinica</Typography>
+          <Typography variant="h6">Reporte quirúrgico</Typography>
           <Button variant="contained" component="label">
             Subir archivo (.PDF 3MB) - {selectedFile.name}
             <input
@@ -371,7 +379,7 @@ const MainForm = () => {
         </Button>
         <Typography variant="p">
           Al dar click en &apos;Enviar&apos; está aceptando nuestros términos y
-          condiciones
+          condiciones.
         </Typography>
         <NotificationModal
           isOpen={snackbarStatus}
