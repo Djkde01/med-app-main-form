@@ -185,14 +185,16 @@ const MainForm = () => {
       </AppBar>
       <Paper
         style={{
+          maxWidth: "500px",
+          width: "90%",
           display: "grid",
           gridRowGap: "20px",
           padding: "20px",
-          margin: "10px 300px",
+          margin: "10px auto",
         }}
       >
         <Box px={3} py={2}>
-          <Typography variant="h3">Registro de historia clinica</Typography>
+          <Typography variant="h3">Registro</Typography>
           <Typography variant="h6">Datos principales</Typography>
           <TextField
             required
@@ -343,7 +345,7 @@ const MainForm = () => {
               {errors.syntoms_start?.message}
             </Typography>
           </LocalizationProvider>
-          <Typography variant="h6">Historia clinica</Typography>
+          <Typography variant="h6">Reporte quirúrgico</Typography>
           <Button variant="contained" component="label">
             Subir archivo (.PDF 3MB) - {selectedFile.name}
             <input
@@ -371,7 +373,7 @@ const MainForm = () => {
         </Button>
         <Typography variant="p">
           Al dar click en &apos;Enviar&apos; está aceptando nuestros términos y
-          condiciones
+          condiciones.
         </Typography>
         <NotificationModal
           isOpen={snackbarStatus}
