@@ -15,9 +15,10 @@ const index = () => {
         >
           Formulario biopolímeros
         </Typography>
-        <Button variant="contained">
+        <button 
+          className="my-5 w-auto px-8 h-10 bg-blue-600 text-white rounded-md shadow hover:shadow-lg font-semibold"  variant="contained">
           <Link href="/auth">Entrar</Link>
-        </Button>
+        </button>
       </Paper>
     </div>
   );

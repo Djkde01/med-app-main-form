@@ -3,7 +3,7 @@ import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 import "firebase/auth";
 import { AuthAction, withAuthUser } from "next-firebase-auth";
-import { Typography } from "@mui/material";
+import { Typography, Paper } from "@mui/material";
 
 // Note that next-firebase-auth inits Firebase for us,
 // so we don't need to.
@@ -40,22 +40,40 @@ const FirebaseAuth = () => {
   console.log("Rendered auth");
   return (
     <div>
-      <Typography
-        variant="h3"
-        color="textSecondary"
+      <Paper
         style={{
-          margin: "10px auto",
-          textAlign: "center",
+          maxWidth: "500px",
+          width: "90%",
+          height: "auto",
+          display: "grid",
+          gridRowGap: "20px",
+          padding: "90px 10px",
+          margin: "40px auto",
         }}
       >
-        Entrar
-      </Typography>
-      {renderAuth ? (
-        <StyledFirebaseAuth
-          uiConfig={firebaseAuthConfig}
-          firebaseAuth={firebase.auth()}
-        />
-      ) : null}
+        <Typography
+          variant="h3"
+          color="#981b07"
+          style={{
+            margin: "100px auto",
+            textAlign: "center",
+          }}
+        >
+          Registrate para continuar
+        </Typography>
+        <div 
+          style={{
+            padding: "90px 10px",
+          }}
+        >
+          {renderAuth ? (
+            <StyledFirebaseAuth
+            uiConfig={firebaseAuthConfig}
+            firebaseAuth={firebase.auth()}
+            />
+            ) : null}
+        </div>
+      </Paper>
     </div>
   );
 };
