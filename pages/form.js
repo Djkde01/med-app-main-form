@@ -177,11 +177,9 @@ const MainForm = () => {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                ))}
+                <MenuItem onClick={() => { setShowModal(true); setAnchorElUser(null);} }>
+                  <Typography textAlign="center">Términos y Condiciones</Typography>
+                </MenuItem>
                 <MenuItem onClick={() => firebase.auth().signOut()}>
                   <Typography textAlign="center">Cerrar sesión</Typography>
                 </MenuItem>
@@ -382,8 +380,8 @@ const MainForm = () => {
           Enviar
         </button>
         <Typography variant="p">
-          Al dar click en &apos;Enviar&apos; está aceptando nuestros 
-          <a className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline" onClick={() => setShowModal(true)}> términos y condiciones </a>.
+          Al dar click en &quot;Enviar&quot; está aceptando nuestros 
+          <a className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline" onClick={() => setShowModal(true)}> términos y condiciones</a>.
         </Typography>
         <NotificationModal
           isOpen={snackbarStatus}
@@ -417,36 +415,18 @@ const MainForm = () => {
               {/*body*/}
               <div className="relative p-6 flex-auto">
                 <p className="my-4 text-slate-500 text-lg leading-relaxed">
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
+                dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
+                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
+                dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
+                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
+                dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
+                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                 </p>
               </div>
               {/*footer*/}
