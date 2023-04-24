@@ -196,11 +196,9 @@ const MainForm = () => {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                ))}
+                <MenuItem onClick={() => { setShowModal(true); setAnchorElUser(null);} }>
+                  <Typography textAlign="center">Términos y Condiciones</Typography>
+                </MenuItem>
                 <MenuItem onClick={() => firebase.auth().signOut()}>
                   <Typography textAlign="center">Cerrar sesión</Typography>
                 </MenuItem>
