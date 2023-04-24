@@ -26,6 +26,7 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  Checkbox
 } from "@mui/material";
 import firebase from "firebase";
 import { Controller, useForm } from "react-hook-form";
@@ -33,10 +34,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import NotificationModal from "../components/shareds/NotificationModal";
+import {NotificationModal, NotificationModal2} from "../components/shareds/NotificationModal";
 import { Container } from "@mui/system";
 
 const settings = ["Registro historia clínica", "Términos & Condiciones"];
+
 
 const MainForm = () => {
   const AuthUser = useAuthUser();
@@ -56,33 +58,50 @@ const MainForm = () => {
 
   const defaultValues = {
     full_name: undefined,
+    phone_number: undefined,
     biopolimer: undefined,
     application_date: null,
     health_issues: null,
-    syntoms_start: null,
+    symptoms_start: null,
+    case_desc: null,
     application_file: null,
+    check: null,
   };
   const validationSchema = Yup.object().shape({
     full_name: Yup.string().required("Nombre completo es requerido"),
+    phone_number: Yup.string().required("Número de teléfono es requerido")
+    .test({
+      name: 'max',
+      message: 'Número de teléfono inválido.',
+      test: (value) => value == null || /^(\d{10,10})$/.test(value),
+    }),
+    check: Yup.mixed().required("Accepta los terminos y condiciones"),
     biopolimer: Yup.mixed()
-      .oneOf(["Hialucorp", "Metacorp"], "Elija el bioplíomero aplicado")
+      .oneOf(["Hialucorp", "Metacorp", "Otro", "No sabe"], "Elija el bioplíomero aplicado")
       .required("Elija el bioplíomero aplicado"),
     application_date: Yup.date()
-      .typeError("Fecha de aplicación inválida")
-      .required("Fecha de aplicación requerida")
+      .required("Fecha requerida")
+      .typeError("Fecha inválida")
       .max(todayDate, "Fecha inválida"),
     health_issues: Yup.mixed().oneOf(["yes", "no"]).required("Campo requerido"),
-    syntoms_start: Yup.date()
-      .max(todayDate, "Fecha inválida")
-      .typeError("Fecha de aplicación inválida"),
-
+    symptoms_start: Yup.date()
+      .typeError("Fecha inválida")
+      .max(todayDate, "Fecha inválida"),
+    case_desc: Yup.mixed()
+      .nullable()
+      .required("Campo requerido")
+      .test("maxLenght", `Escriba maximo 500 caracteres`, (value)  => {
+        return value==null || value.length <= 500;
+      }) ,
+    
     application_file: Yup.mixed()
       .nullable()
-      .required("Historia clínica requerida")
       .test("fileSize", "El tamaño del archivo es muy grande", (value) => {
+        if(!value) return true;
         return value && value[0].size <= 3000000;
       })
       .test("type", "Solo se pueden subir archivos .pdf", (value) => {
+        if(!value) return true;
         return value && value[0].type === "application/pdf";
       }),
   });
@@ -224,6 +243,27 @@ const MainForm = () => {
           >
             {errors.full_name?.message}
           </Typography>
+          <TextField
+            required
+            id="phone_number"
+            name="phone_number"
+            label="Número de teléfono"
+            fullWidth
+            margin="dense"
+            variant="outlined"
+            {...register("phone_number")}
+            error={errors.phone_number ? true : false}
+          />
+          <Typography
+            variant="inherit"
+            color="textSecondary"
+            style={{
+              margin: "10px auto",
+              color: "red",
+            }}
+          >
+            {errors.phone_number?.message}
+          </Typography>
           <FormControl fullWidth>
             <InputLabel id="biopolimer">
               Nombre del biopolimero que le fue aplicado
@@ -240,6 +280,8 @@ const MainForm = () => {
               <MenuItem value="Seleccione">Seleccione</MenuItem>
               <MenuItem value="Hialucorp">Hialucorp</MenuItem>
               <MenuItem value="Metacorp">Metacorp</MenuItem>
+              <MenuItem value="Otro">Otro</MenuItem>
+              <MenuItem value="No sabe">No sabe</MenuItem>
             </Select>
           </FormControl>
           <Typography
@@ -325,7 +367,7 @@ const MainForm = () => {
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Typography variant="h6">Fecha de inicio de síntomas</Typography>
             <Controller
-              name="syntoms_start"
+              name="symptoms_start"
               control={control}
               render={({ field: { onChange, value } }) => (
                 <DatePicker
@@ -335,8 +377,8 @@ const MainForm = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      {...register("syntoms_start")}
-                      error={errors.syntoms_start ? true : false}
+                      {...register("symptoms_start")}
+                      error={errors.symptoms_start ? true : false}
                     />
                   )}
                 />
@@ -350,10 +392,33 @@ const MainForm = () => {
                 color: "red",
               }}
             >
-              {errors.syntoms_start?.message}
+              {errors.symptoms_start?.message}
             </Typography>
           </LocalizationProvider>
-          <Typography variant="h6">Reporte quirúrgico</Typography>
+          <TextField
+            required
+            id="case_desc"
+            name="case_desc"
+            label="Cuéntanos tu caso en 500 caracteres"
+            fullWidth
+            multiline="true"
+            rows="4"
+            margin="dense"
+            variant="outlined"
+            {...register("case_desc")}
+            error={errors.case_desc ? true : false}
+          />
+          <Typography
+            variant="inherit"
+            color="textSecondary"
+            style={{
+              margin: "10px auto",
+              color: "red",
+            }}
+          >
+            {errors.case_desc?.message}
+          </Typography>
+          <Typography variant="h6">Reporte quirúrgico (opcional)</Typography>
           <Button variant="contained" component="label">
             Subir archivo (.PDF 3MB) - {selectedFile.name}
             <input
@@ -375,16 +440,40 @@ const MainForm = () => {
           >
             {errors.application_file?.message}
           </Typography>
+          <FormControlLabel 
+            id="check" 
+            name="check"
+            fullWidth
+            {...register("check")}
+            control={
+              <Checkbox/>
+            } 
+            label ={
+              <p 
+                className="decoration-solid under underline text-sky-400 hover:text-sky-800 text-xl" 
+                onClick={
+                  () => setShowModal(true)
+                }>
+                Términos y condiciones.
+              </p>
+            }
+          />
+          <Typography
+            variant="inherit"
+            color="textSecondary"
+            style={{
+              margin: "10px auto",
+              color: "red",
+            }}
+          >
+            {errors.check?.message}
+          </Typography>
         </Box>
         <button 
           className="my-5 w-auto px-8 h-10 bg-blue-600 text-white rounded-md shadow hover:shadow-lg font-semibold" 
           onClick={handleSubmit(onSubmit)}>
           Enviar
         </button>
-        <Typography variant="p">
-          Al dar click en &apos;Enviar&apos; está aceptando nuestros 
-          <a className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline" onClick={() => setShowModal(true)}> términos y condiciones </a>.
-        </Typography>
         <NotificationModal
           isOpen={snackbarStatus}
           onClose={() => {
@@ -394,76 +483,12 @@ const MainForm = () => {
       </Paper>
       {showModal? (
         <>
-        <div
-          className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
-        >
-          <div className="relative w-auto my-6 mx-auto max-w-3xl">
-            {/*content*/}
-            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-              {/*header*/}
-              <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 rounded-t">
-                <h3 className="text-3xl text-slate-500">
-                  Términos y condiciones
-                </h3>
-                <button
-                  className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                  onClick={() => setShowModal(false)}
-                >
-                  <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                    ×
-                  </span>
-                </button>
-              </div>
-              {/*body*/}
-              <div className="relative p-6 flex-auto">
-                <p className="my-4 text-slate-500 text-lg leading-relaxed">
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                  I always felt like I could do anything. That’s the main
-                  thing people are controlled by! Thoughts- their perception
-                  of themselves! They're slowed down by their perception of
-                  themselves. If you're taught you can’t do anything, you
-                  won’t do anything. I was taught I could do everything.
-                </p>
-              </div>
-              {/*footer*/}
-              <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
-                <button
-                  className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
-      </>
+        <NotificationModal2
+          handleClose={() => {
+            setShowModal(false);
+          }}
+        />
+        </>
       ): null}
     </>
   );

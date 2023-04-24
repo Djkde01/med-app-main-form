@@ -1,5 +1,7 @@
 import { init } from "next-firebase-auth";
 
+const { FIREBASE_PRIVATE_KEY, COOKIE_SECRET_CURRENT, COOKIE_SECRET_PREVIOUS } = process.env
+
 const initAuth = () => {
   init({
     authPageURL: "/auth",
@@ -18,8 +20,8 @@ const initAuth = () => {
         clientEmail:
           "firebase-adminsdk-6fwxs@biopolimeros-b9044.iam.gserviceaccount.com",
         // The private key must not be accessible on the client side.
-        privateKey: process.env.FIREBASE_PRIVATE_KEY
-          ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/gm, "\n")
+        privateKey: FIREBASE_PRIVATE_KEY
+          ? FIREBASE_PRIVATE_KEY.replace(/\\n/gm, "\n")
           : undefined,
       },
     },
@@ -38,8 +40,8 @@ const initAuth = () => {
       // Keys are required unless you set `signed` to `false`.
       // The keys cannot be accessible on the client side.
       keys: [
-        process.env.COOKIE_SECRET_CURRENT,
-        process.env.COOKIE_SECRET_PREVIOUS,
+        COOKIE_SECRET_CURRENT,
+        COOKIE_SECRET_PREVIOUS,
       ],
       httpOnly: true,
       maxAge: 12 * 60 * 60 * 24 * 1000, // twelve days
